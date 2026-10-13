@@ -1,0 +1,81 @@
+# One command for the whole system:
+#   docker compose up --build
+# Web app: http://localhost:8080   API: http://localhost:4000/api/health
+# Inside Docker the services talk to each other by name (postgres, mongo);
+# from the host, PostgreSQL is on port 5433 and MongoDB on 27018.
+# First start seeds ~650k documents/rows (a few minutes). Data persists in volumes;
+# re-seed with:  docker compose run --rm -e RESEED=1 seed
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ridesync_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    # host port 5433 so it never clashes with a PostgreSQL already installed on the PC
+    ports: ["5433:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ridesync_db"]
+      interval: 3s
+      retries: 30
+
+  mongo:
+    image: mongo:7
+    # host port 27018 so it never clashes with a MongoDB already installed on the PC
+    ports: ["27018:27017"]
+    volumes: [mongodata:/data/db]
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 3s
+      retries: 30
+
+  # collections + 2dsphere/TTL indexes (Assignment 1 script, unchanged logic)
+  mongo-init:
+    image: mongo:7
+    depends_on:
+      mongo: { condition: service_healthy }
+    volumes: [./mongo:/scripts:ro]
+    command: ["mongosh", "mongodb://mongo:27017/ridesync_db", "--quiet", "/scripts/01_collections_and_indexes.js"]
+    restart: "no"
+
+  # schema + seeders + ledger back-fill (skips if already seeded)
+  seed:
+    build: { context: ., dockerfile: data_generation/Dockerfile }
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: ridesync_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      MONGO_URI: mongodb://mongo:27017/
+      MONGO_DB: ridesync_db
+    depends_on:
+      postgres: { condition: service_healthy }
+      mongo-init: { condition: service_completed_successfully }
+    restart: "no"
+
+  api:
+    build: ./api
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: ridesync_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      MONGO_URI: mongodb://mongo:27017/
+      MONGO_DB: ridesync_db
+      CORS_ORIGIN: http://localhost:8080
+      SIMULATE_TELEMETRY: "true"
+    ports: ["4000:4000"]
+    depends_on:
+      seed: { condition: service_completed_successfully }
+
+  web:
+    build: ./web
+    ports: ["8080:80"]
+    depends_on: [api]
+
+volumes:
+  pgdata:
+  mongodata:

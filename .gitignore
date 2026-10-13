@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+
+# Environment Variables
+.env
+
+# Database dumps and temporary data
+*.sql.bak
+*.dump
+*.csv
+*.tsv
+*.jsonl
+dump/
+
+# OS & IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/settings.json
+*.swp
+*.swo
+
+# Antigravity & Agent workspace artifacts
+.agents/
+.gemini/
+
+# Assignment 1B front end / API
+node_modules/
+dist/
+test-results/
+playwright-report/
+*.tsbuildinfo
