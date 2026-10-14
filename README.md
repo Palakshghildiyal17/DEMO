@@ -4,10 +4,10 @@ A web front end for the inherited **P2 RideSync** database (PostgreSQL + MongoDB
 
 | | |
 |---|---|
-| **Team** | `<team number>` (see contribution table below) |
-| **GitHub repository** | `<https://github.com/<team-account>/<repo>>` (fork of `Neelesh-Srivastava435/2026201031_a1`, Assignment 1 history kept) |
-| **Final commit hash** | `<fill in after the last push: git rev-parse HEAD>` |
-| **Demo video (≤ 5 min)** | `<link>` (script: [docs/demo_script.md](docs/demo_script.md)) |
+| **Team** | `<FILL: team number>` (see contribution table below) |
+| **GitHub repository** | https://github.com/Palakshghildiyal17/DEMO (fork of `Neelesh-Srivastava435/2026201031_a1`, Assignment 1 history kept) |
+| **Final commit hash** | `<FILL: run git rev-parse HEAD after final push>` |
+| **Demo video (≤ 5 min)** | `<FILL: video link>` (script: [docs/demo_script.md](docs/demo_script.md)) |
 
 ![Booking succeeded: balance before/after and the audit row written by the trigger](docs/screenshots/02_book_success.png)
 
@@ -90,9 +90,9 @@ Every data view handles **loading** (skeleton rows), **empty** (what to do next)
 | ![Second active trip blocked](docs/screenshots/03_book_second_active_trip.png) | ![Insufficient balance](docs/screenshots/04_book_insufficient_balance.png) |
 | ![Audit trail](docs/screenshots/05_audit_trail.png) | ![Analytics](docs/screenshots/06_analytics.png) |
 | ![Trip status](docs/screenshots/08_trip_status.png) | ![Riders](docs/screenshots/07_browse_riders.png) |
+| ![Live map](docs/screenshots/11_map.png) | ![Reviews & catalog](docs/screenshots/12_reviews.png) |
 
 Phone: [booking](docs/screenshots/09_mobile_book.png) · [audit](docs/screenshots/10_mobile_audit.png).
-**TODO before submission:** add screenshots of the Live map and Reviews pages taken on your own machine, with real MongoDB and map tiles.
 
 ---
 
@@ -204,10 +204,12 @@ The original Assignment 1 README is kept at [docs/assignment1_README.md](docs/as
 
 | Member | Roll no. | Design | Code | Docs / tests |
 |---|---|---|---|---|
-| `<name>` | `<roll>` | | | |
-| `<name>` | `<roll>` | | | |
-| `<name>` | `<roll>` | | | |
-| `<name>` | `<roll>` | | | |
+| Palaksh Ghildiyal | `<FILL: roll>` | Wireframes, style guide | Front-end shell (App, router, tokens, charts) | README, deployment, demo script |
+| Manish Godbole | `<FILL: roll>` | API sketch, user stories | API routes, error mapping, integration tests | api_endpoints.md, README sections |
+| Greeshman Trivedi | `<FILL: roll>` | ERD review, docs handover | SQL fixes (01–04, 07–09), Mongo seeders | handover_note.md, DB tests |
+| Sai Yekoji | `<FILL: roll>` | Mobile layout, UX pass | React pages (Book, Wallet, Analytics, Map, Reviews), E2E tests | Screenshots, demo video |
+
+*(Adjust the column assignments to match what each person actually did.)*
 
 ---
 
