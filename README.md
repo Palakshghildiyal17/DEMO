@@ -90,7 +90,7 @@ On Windows, install Docker Desktop from [docker.com](https://www.docker.com/prod
 
 ### Option B — Run Using Prebuilt Docker Images
 
-This option runs the API, frontend, and database seeder from prebuilt images published to GitHub Container Registry (GHCR). PostgreSQL, MongoDB, and the MongoDB initialization image are still pulled from their configured third-party registries.
+This option runs the API, frontend, database seeder, and MongoDB initialization service from prebuilt images published to GitHub Container Registry (GHCR). PostgreSQL and MongoDB are still pulled from their configured third-party registries.
 
 **Prerequisites:**
 
@@ -108,10 +108,10 @@ cd DEMO
 Start the application with the Compose configuration for prebuilt images:
 
 ```bash
-docker compose -f docker-compose.images.yml up -d
+docker compose -f docker-compose.images.yml up -d --pull always
 ```
 
-GHCR images have been published and the image-based Compose configuration has been validated against those images. The configuration retains the existing database services, environment variables, ports, volumes, health checks, and initialization dependencies while referencing the published images instead of building them locally.
+The image-based Compose configuration retains the existing database services, environment variables, ports, volumes, health checks, and initialization dependencies while referencing published images instead of building them locally. The MongoDB initialization script is packaged inside its prebuilt image, so a local `mongo/` directory is not required.
 
 Access the application at:
 

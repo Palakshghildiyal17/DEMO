@@ -26,11 +26,10 @@ services:
 
   # collections + 2dsphere/TTL indexes (Assignment 1 script, unchanged logic)
   mongo-init:
-    image: mongo:7
+    image: ghcr.io/harshith217/ridesync-mongo-init:latest
+    pull_policy: always
     depends_on:
       mongo: { condition: service_healthy }
-    volumes: [./mongo:/scripts:ro]
-    command: ["mongosh", "mongodb://mongo:27017/ridesync_db", "--quiet", "/scripts/01_collections_and_indexes.js"]
     restart: "no"
 
   # schema + seeders + ledger back-fill (skips if already seeded)
