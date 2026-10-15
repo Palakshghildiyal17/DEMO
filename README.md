@@ -3,14 +3,13 @@
 A web front end for the inherited **P2 RideSync** database (PostgreSQL + MongoDB). Through a browser, a rider can book a trip, see their wallet history, and top up. An operations user can watch nearby vehicles on a live map, compare vehicle revenue, refresh the earnings snapshot, and read rider reviews.
 
 All four Assignment 1 workflows run in the database (stored procedures, triggers, views, window functions, `$geoNear`, and `$facet`); the API in between is deliberately thin.
-We inherited the P2 RideSync backend from Assignment 1 (PostgreSQL + MongoDB) and ran its schema, seeders, procedures, and pipelines locally before building anything. The full story — what worked, what didn't, what we changed, and what we'd suggest to the original authors — is in [`docs/handover_note.md`](docs/handover_note.md). The API surface we designed before writing any UI code is in [`docs/api_endpoints.md`](docs/api_endpoints.md).
 
 | | |
 |---|---|
-| **Team** | Team 18 |
-| **GitHub repository** | https://github.com/manish0222/Team18_a1b (fork of `Neelesh-Srivastava435/2026201031_a1`; Assignment 1 history kept) |
-| **Final commit hash** | `<FILL: run git rev-parse HEAD after final push>` |
-| **Demo video (≤ 5 min)** | `<FILL: video link>` (script: [docs/demo_script.md](docs/demo_script.md)) |
+| **Team** | `<team number>` (see contribution table below) |
+| **GitHub repository** | `<https://github.com/<team-account>/<repo>>` (fork of `Neelesh-Srivastava435/2026201031_a1`; Assignment 1 history kept) |
+| **Final commit hash** | `<fill in after the last push: git rev-parse HEAD>` |
+| **Demo video (≤ 5 min)** | `<link>` (script: [docs/demo_script.md](docs/demo_script.md)) |
 
 ![Booking succeeded: balance before/after and the audit row written by the trigger](docs/screenshots/02_book_success.png)
 
@@ -18,35 +17,18 @@ We inherited the P2 RideSync backend from Assignment 1 (PostgreSQL + MongoDB) an
 
 ## Contents
 
-0. [What we inherited and verified](#0-what-we-inherited-and-verified)
 1. [Run it](#1-run-it)
-2. [Design — who uses it, and what it looks like](#2-design--who-uses-it-and-what-it-looks-like)
-3. [Screens and how they map to the workflows](#3-screens-and-how-they-map-to-the-workflows)
-4. [Tests](#4-tests)
-5. [Technology choices](#5-technology-choices)
-6. [Architecture](#6-architecture)
-7. [Assumptions](#7-assumptions)
-8. [Changes to the inherited database](#8-changes-to-the-inherited-database)
-9. [Repository layout](#9-repository-layout)
-10. [Contribution table](#10-contribution-table)
-11. [Known limitations](#11-known-limitations)
-12. [Summary](#12-summary)
-13. [Handover note](docs/handover_note.md)
-14. [API endpoints](docs/api_endpoints.md)
+2. [Screens and how they map to the workflows](#2-screens-and-how-they-map-to-the-workflows)
+3. [Tests](#3-tests)
+4. [Technology choices](#4-technology-choices)
+5. [Architecture](#5-architecture)
+6. [Assumptions](#6-assumptions)
+7. [Changes to the inherited database](#7-changes-to-the-inherited-database)
+8. [Repository layout](#8-repository-layout)
+9. [Contribution table](#9-contribution-table)
+10. [Known limitations](#10-known-limitations)
 
 ---
-
-## 0. What we inherited and verified
-
-Before writing any front-end code, we completed the assignment's Step 1:
-
-- **Ran the inherited backend locally.** We followed the original README, applied the schema (`sql/01`–`06`), loaded MongoDB indexes, ran both Python seeders, and confirmed the four Assignment 1 workflows (booking, window analytics, `$geoNear`, `$facet`) run as documented. The performance evidence in `performance/` matched what we reproduced.
-
-- **Wrote a handover note.** [`docs/handover_note.md`](docs/handover_note.md) lists what worked, what did not (eleven specific issues, including a broken AFTER trigger, an empty seeded audit log, missing SQLSTATEs, random UUIDs in the MongoDB seeder, and a `const db` ReferenceError), what we changed and why, and suggestions for the original authors. Every change is marked `[A1B]` in the source file.
-
-- **Sketched the API before building the UI.** [`docs/api_endpoints.md`](docs/api_endpoints.md) lists every endpoint, its inputs, and its outputs, including how each custom SQLSTATE (`RS001`–`RS007`) maps to an HTTP status and code.
-
-The `docs/handover_note.md` and `docs/api_endpoints.md` files were written before the front end, not after.
 
 ## 1. Run it
 
@@ -57,8 +39,8 @@ Choose the setup path that matches your machine. All three paths are intended to
 Designed for a fresh **Ubuntu 22.04/24.04** or **macOS** machine with Git and internet access. The bootstrap scripts are intended to install/configure the prerequisites, write `.env`, create the database, run the schema and seeders, back-fill the wallet ledger, and install dependencies. The first setup may take around **15–25 minutes**, depending on the machine and network.
 
 ```bash
-git clone https://github.com/manish0222/Team18_a1b.git
-cd Team18_a1b
+git clone -b mandemo https://github.com/Palakshghildiyal17/DEMO.git
+cd DEMO
 
 # Ubuntu
 sudo bash scripts/bootstrap.sh
@@ -85,43 +67,71 @@ npm run dev
 # Web app: http://localhost:5173
 ```
 
-### Option B — Docker (recommended for Windows and anyone wanting an isolated setup)
+### Option A — Build and Run Using Docker (recommended for Windows and anyone wanting an isolated setup)
 
 Requires **Docker Desktop** (or Docker Engine with the Compose plugin) and internet access. PostgreSQL, MongoDB, Node.js, and Python do not need to be installed on the host.
 
 ```bash
-git clone https://github.com/manish0222/Team18_a1b.git
-cd Team18_a1b
-docker compose up --build
+git clone -b mandemo https://github.com/Palakshghildiyal17/DEMO.git
+cd DEMO
+docker compose up --build -d
 ```
 
 - Web app: **http://localhost:8080**
 - API health: **http://localhost:4000/api/health**
-- The first start builds the schema, seeds about 650k rows/documents, and back-fills the wallet ledger. This can take a few minutes; follow progress with `docker compose logs -f seed`.
+- The first start builds the application images, initializes the schema, seeds about 650k rows/documents, and back-fills the wallet ledger. This can take a few minutes; follow progress with `docker compose logs -f seed`.
 - The database containers use host ports **5433** (PostgreSQL) and **27018** (MongoDB), avoiding conflicts with services already using the usual local ports.
+- Check container status with `docker compose ps`.
 - Data persists in Docker volumes. To reseed from scratch, run `docker compose run --rm -e RESEED=1 seed`.
 - Stop containers with `docker compose down`. Start them again later with `docker compose up`; the data remains in the volumes.
 - **Warning:** `docker compose down -v` also deletes the persisted database volumes and their data.
 
-On Windows, install Docker Desktop from [docker.com](https://www.docker.com/products/docker-desktop/) and use the default WSL 2 backend. A PowerShell bootstrap script (`scripts/bootstrap-windows.ps1`) is also available as an alternative for users who prefer a native Windows install.
+On Windows, install Docker Desktop from [docker.com](https://www.docker.com/products/docker-desktop/) and use the default WSL 2 backend. A PowerShell bootstrap script (`scripts/bootstrap-windows.ps1`) is available, but it is **untested**; Docker is the recommended Windows path.
 
-### Option B (alternative) — Run Using Prebuilt Docker Images
+### Option B — Run Using Prebuilt Docker Images
 
-If the GHCR images have already been published, you can skip the local build and run prebuilt images instead. PostgreSQL and MongoDB are still pulled from their official registries.
+This option runs the API, frontend, database seeder, and MongoDB initialization service from prebuilt images published to GitHub Container Registry (GHCR). PostgreSQL and MongoDB are still pulled from their configured third-party registries.
+
+**Prerequisites:**
+
+- Docker Desktop or Docker Engine with the Docker Compose plugin.
+- Internet access.
+- The required GHCR images must already be published and accessible.
+
+Clone the repository:
 
 ```bash
-git clone https://github.com/manish0222/Team18_a1b.git
-cd Team18_a1b
-docker compose -f docker-compose.images.yml up -d
+git clone -b mandemo https://github.com/Palakshghildiyal17/DEMO.git
+cd DEMO
 ```
 
-- Web app: **http://localhost:8080**
-- API health: **http://localhost:4000/api/health**
-- Monitor with `docker compose -f docker-compose.images.yml ps` and `docker compose -f docker-compose.images.yml logs -f seed`
-- Stop with `docker compose -f docker-compose.images.yml down`
-- Data persists in Docker volumes unless explicitly removed
+Start the application with the Compose configuration for prebuilt images:
 
+```bash
+docker compose -f docker-compose.images.yml up -d --pull always
+```
 
+The image-based Compose configuration retains the existing database services, environment variables, ports, volumes, health checks, and initialization dependencies while referencing published images instead of building them locally. The MongoDB initialization script is packaged inside its prebuilt image, so a local `mongo/` directory is not required.
+
+Access the application at:
+
+- Web application: **http://localhost:8080**
+- API health endpoint: **http://localhost:4000/api/health**
+
+The first startup initializes the databases and seeds the application data. The seed service is a one-time job (`restart: "no"`); its existing seed script skips data generation when the persistent database is already populated. Monitor initialization and inspect status with:
+
+```bash
+docker compose -f docker-compose.images.yml ps
+docker compose -f docker-compose.images.yml logs -f seed
+```
+
+Stop the application with:
+
+```bash
+docker compose -f docker-compose.images.yml down
+```
+
+Database data persists in Docker volumes unless those volumes are explicitly removed.
 
 ### Option C — Manual local installation
 
@@ -204,7 +214,7 @@ npm run dev
 |---|---|---|
 | Ubuntu 22.04 / 24.04 | `sudo bash scripts/bootstrap.sh` | Docker or manual local installation |
 | macOS (Intel / Apple Silicon) | `bash scripts/bootstrap.sh` | Docker or manual local installation |
-| Windows 10 / 11 | `.\scripts\bootstrap-windows.ps1` (PowerShell as Administrator) | Docker Desktop or manual setup |
+| Windows 10 / 11 | Docker Desktop | `scripts/bootstrap-windows.ps1` (untested) or manual setup where dependencies are installed |
 | Any OS with Docker | `docker compose up --build` | Manual local installation |
 
 ### First thing to do in the app
@@ -213,30 +223,7 @@ Choose a rider in **“Acting as”** at the top of the sidebar. There is no log
 
 ---
 
-## 2. Design — who uses it, and what it looks like
-
-Before writing any code, we designed for two users:
-
-- **Rider** (e.g. "Ananya, commutes daily in HITEC City"): books rides, checks the wallet, tops up, follows or cancels the current trip. Cares about plain words, the balance before and after in large type, and one obvious next step.
-- **Operations team** (a dispatcher and a fleet & quality manager): watches supply on the live map, compares vehicle earnings, refreshes the lifetime snapshot, and reads rider reviews. Cares about dense but readable tables, shareable filter URLs, and data that refreshes without a reload.
-
-Full write-up: [`docs/design/users.md`](docs/design/users.md).
-
-**Wireframes.** Seven low-fidelity wireframes were drawn before any code was written and live in [`docs/design/wireframes/`](docs/design/wireframes/) (also available as an editable HTML file):
-
-| Wireframe | Screen |
-|---|---|
-| `wf-book.png` | Book a trip (Workflow 1) |
-| `wf-audit.png` | Wallet & audit trail |
-| `wf-analytics.png` | Fleet analytics (Workflow 2 + MV) |
-| `wf-map.png` | Live map (Workflow 3) |
-| `wf-reviews.png` | Reviews & catalog (Workflow 4) |
-| `wf-browse.png` | Browse lists + detail pages |
-| `wf-mobile.png` | Phone layout |
-
-**Look and feel.** Colours, typography, and the reusable component set are defined once in [`docs/design/style_guide.md`](docs/design/style_guide.md) and implemented as design tokens in `web/src/styles/tokens.css`. Every screen is composed from the same small set of components (`Button`, `Panel`, `DataTable`, `Pagination`, `SearchPicker`, `Stat`, `StatusBadge`, `LoadingBlock`, `EmptyState`, `ErrorState`, …) so the look is consistent without a utility-class framework.
-
-## 3. Screens and how they map to the workflows
+## 2. Screens and how they map to the workflows
 
 | Screen | What you can do | Database objects it drives |
 |---|---|---|
@@ -258,11 +245,11 @@ Every data view handles loading (skeleton rows), empty (what to do next), and er
 
 Phone: [booking](docs/screenshots/09_mobile_book.png) · [audit](docs/screenshots/10_mobile_audit.png).
 
-<!-- **Before submission:** add screenshots of the Live map and Reviews pages captured on your own machine with MongoDB running and map tiles visible. -->
+**Before submission:** add screenshots of the Live map and Reviews pages captured on your own machine with MongoDB running and map tiles visible.
 
 ---
 
-## 4. Tests
+## 3. Tests
 
 We tested the parts where a mistake could cost money or hide a failure: the booking transaction, failure paths, trip life-cycle, and ledger.
 
@@ -275,7 +262,7 @@ We tested the parts where a mistake could cost money or hide a failure: the book
 
 ---
 
-## 5. Technology choices
+## 4. Technology choices
 
 | Layer | Choice | Why |
 |---|---|---|
@@ -286,11 +273,11 @@ We tested the parts where a mistake could cost money or hide a failure: the book
 | Styling | Plain CSS with design tokens (`styles/tokens.css`) | Keeps screens consistent without requiring a utility-class framework. See `docs/design/style_guide.md`. |
 | API | Node.js `http` + a small router, `pg`, `mongodb` | A thin layer: endpoints call procedures, views, or MongoDB pipelines. Dependency injection (`createApp({pg, mongo})`) lets unit tests run without databases. |
 | Tests | `node:test`, `psql` script, Playwright | Built-in Node test runner, database workflow tests, and browser-level coverage. |
-| Delivery | Docker Compose + `scripts/bootstrap.*` + `scripts/setup_db.*` | One-command option for reviewers, plus a per-OS bootstrap script for machines without Docker. |
+| Delivery | Docker Compose + `scripts/setup_db.*` | One-command option for reviewers, plus local setup for machines with databases installed. |
 
 ---
 
-## 6. Architecture
+## 5. Architecture
 
 ```text
 Browser (React)  ── /api/* ──▶  API (Node, thin)  ──▶  PostgreSQL
@@ -308,7 +295,7 @@ Business rules stay in the database: the API does not compute balances, decide w
 
 ---
 
-## 7. Assumptions
+## 6. Assumptions
 
 1. **Indian context.** Currency is ₹ (INR); riders have Indian names and vehicles have Indian (mostly Telangana) plates.
 2. **No authentication.** “Acting as” switches the rider for demos, as allowed by the brief.
@@ -319,11 +306,10 @@ Business rules stay in the database: the API does not compute balances, decide w
 7. **Nearest vehicle.** The latest available ping per vehicle inside 5 km within the selected window (default 15 minutes). The Part A `$geoNear` stage is unchanged; de-duplication by vehicle is added because pings carry real vehicle IDs.
 8. **Top-ups.** Capped at ₹5,000 per transaction as a demo guard in `sp_topup_wallet`.
 9. **Test data changes.** E2E/integration tests change data (bookings, refunds, top-ups) for one rider. The SQL test suite rolls back its transaction.
-10. **Cross-platform setup.** The one-command bootstrap is provided for Ubuntu, macOS, and Windows. All three paths reach the same application. On Windows, run the PowerShell script as Administrator; on macOS no sudo is needed.
 
 ---
 
-## 8. Changes to the inherited database
+## 7. Changes to the inherited database
 
 The handover note explains each change: [docs/handover_note.md](docs/handover_note.md). Every edit is marked `[A1B]` in the file.
 
@@ -341,15 +327,12 @@ The handover note explains each change: [docs/handover_note.md](docs/handover_no
 | `sql/tests/test_workflows.sql` | New database tests |
 | `data_generation/mongo_seeder.py` | Real PostgreSQL IDs, vehicle tracks, idempotent seeding, no future-dated reviews |
 | `mongo/*.js` | `const db = db.getSiblingDB(...)` changed to `db = ...` |
-| `scripts/bootstrap.sh`, `bootstrap-ubuntu.sh`, `bootstrap-macos.sh` | New cross-platform one-command setup |
-| `scripts/setup_db.sh`, `setup_db.ps1`, `check_prereqs.ps1` | New database setup and prerequisite checker |
-| `api/`, `web/`, `docker-compose.yml` | New API layer, React front end, and container orchestration |
 
 The original Assignment 1 README is kept at [docs/assignment1_README.md](docs/assignment1_README.md).
 
 ---
 
-## 9. Repository layout
+## 8. Repository layout
 
 ```text
 ├── README.md                    this file
@@ -370,7 +353,7 @@ The original Assignment 1 README is kept at [docs/assignment1_README.md](docs/as
 
 ---
 
-## 10. Contribution Table
+## 9. Contribution Table
 
 | Member | Roll No. |
 |---|---|
@@ -381,13 +364,10 @@ The original Assignment 1 README is kept at [docs/assignment1_README.md](docs/as
 
 ---
 
-## 11. Known limitations
+## 10. Known limitations
 
 - No real authentication or authorization. Anyone can act as any rider.
 - The materialized view changes only when refreshed. This is intentional; the UI shows how stale it is.
 - The live-ping simulator is demo scaffolding. In production, pings would come from driver apps.
 - The ranking query computes all vehicles' moving averages for the selected day (about 0.3 seconds on 100k trips). Larger datasets may need a materialized daily table.
 - The Live map needs internet access for OpenStreetMap tiles. Without internet, markers may still appear on a blank background.
-
-## 12. Summary
- We chose technologies that keep the API thin and the database central. React and Vite give the team a familiar, fast front end. Node's built-in `http` and two runtime dependencies (`pg`, `mongodb`) let every route be a handful of lines that call a stored procedure, view, or MongoDB pipeline — no business logic in JavaScript. Hand-written SVG charts and a direct Leaflet integration keep the front-end bundle small and explainable. Docker Compose and the per-OS bootstrap scripts make the setup reproducible. The two databases do the work the assignment asks for: PostgreSQL for transactions, constraints, triggers, and window analytics; MongoDB for high-frequency geospatial telemetry, flexible catalog documents, and faceted reviews.
