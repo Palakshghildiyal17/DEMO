@@ -67,25 +67,71 @@ npm run dev
 # Web app: http://localhost:5173
 ```
 
-### Option B — Docker (recommended for Windows and anyone wanting an isolated setup)
+### Option A — Build and Run Using Docker (recommended for Windows and anyone wanting an isolated setup)
 
 Requires **Docker Desktop** (or Docker Engine with the Compose plugin) and internet access. PostgreSQL, MongoDB, Node.js, and Python do not need to be installed on the host.
 
 ```bash
 git clone -b mandemo https://github.com/Palakshghildiyal17/DEMO.git
 cd DEMO
-docker compose up --build
+docker compose up --build -d
 ```
 
 - Web app: **http://localhost:8080**
 - API health: **http://localhost:4000/api/health**
-- The first start builds the schema, seeds about 650k rows/documents, and back-fills the wallet ledger. This can take a few minutes; follow progress with `docker compose logs -f seed`.
+- The first start builds the application images, initializes the schema, seeds about 650k rows/documents, and back-fills the wallet ledger. This can take a few minutes; follow progress with `docker compose logs -f seed`.
 - The database containers use host ports **5433** (PostgreSQL) and **27018** (MongoDB), avoiding conflicts with services already using the usual local ports.
+- Check container status with `docker compose ps`.
 - Data persists in Docker volumes. To reseed from scratch, run `docker compose run --rm -e RESEED=1 seed`.
 - Stop containers with `docker compose down`. Start them again later with `docker compose up`; the data remains in the volumes.
 - **Warning:** `docker compose down -v` also deletes the persisted database volumes and their data.
 
 On Windows, install Docker Desktop from [docker.com](https://www.docker.com/products/docker-desktop/) and use the default WSL 2 backend. A PowerShell bootstrap script (`scripts/bootstrap-windows.ps1`) is available, but it is **untested**; Docker is the recommended Windows path.
+
+### Option B — Run Using Prebuilt Docker Images
+
+This option runs the API, frontend, and database seeder from prebuilt images published to GitHub Container Registry (GHCR). PostgreSQL, MongoDB, and the MongoDB initialization image are still pulled from their configured third-party registries.
+
+**Prerequisites:**
+
+- Docker Desktop or Docker Engine with the Docker Compose plugin.
+- Internet access.
+- The required GHCR images must already be published and accessible.
+
+Clone the repository:
+
+```bash
+git clone -b mandemo https://github.com/Palakshghildiyal17/DEMO.git
+cd DEMO
+```
+
+Start the application with the Compose configuration for prebuilt images:
+
+```bash
+docker compose -f docker-compose.images.yml up -d
+```
+
+GHCR images have been published and the image-based Compose configuration has been validated against those images. The configuration retains the existing database services, environment variables, ports, volumes, health checks, and initialization dependencies while referencing the published images instead of building them locally.
+
+Access the application at:
+
+- Web application: **http://localhost:8080**
+- API health endpoint: **http://localhost:4000/api/health**
+
+The first startup initializes the databases and seeds the application data. The seed service is a one-time job (`restart: "no"`); its existing seed script skips data generation when the persistent database is already populated. Monitor initialization and inspect status with:
+
+```bash
+docker compose -f docker-compose.images.yml ps
+docker compose -f docker-compose.images.yml logs -f seed
+```
+
+Stop the application with:
+
+```bash
+docker compose -f docker-compose.images.yml down
+```
+
+Database data persists in Docker volumes unless those volumes are explicitly removed.
 
 ### Option C — Manual local installation
 
@@ -314,7 +360,7 @@ The original Assignment 1 README is kept at [docs/assignment1_README.md](docs/as
 | PALAKSH GHILDIYAL | 2026 |
 | MANISH GODBOLE | 2026201064 |
 | GREESHMA TRIVEDI | 2026 |
-| SAI YEKOJI | 2026 |
+| SAI HARSHITH YEKOJI | 2026201017 |
 
 ---
 
